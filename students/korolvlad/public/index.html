@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DevOps Status Dashboard</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background: #101827;
+                color: #f8fafc;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            }
+
+            .dashboard {
+                width: 100%;
+                max-width: 650px;
+                background: #1e293b;
+                padding: 32px;
+                border-radius: 16px;
+            }
+
+            h1 {
+                margin-top: 0;
+                text-align: center;
+            }
+
+            .subtitle {
+                text-align: center;
+                color: #94a3b8;
+            }
+
+            .card {
+                background: #334155;
+                padding: 18px;
+                border-radius: 10px;
+                margin-top: 15px;
+            }
+
+            .label {
+                color: #cbd5e1;
+                font-size: 14px;
+            }
+
+            .value {
+                font-size: 22px;
+                font-weight: bold;
+                margin-top: 8px;
+                overflow-wrap: anywhere;
+            }
+
+            .online {
+                color: #4ade80;
+            }
+
+            .offline {
+                color: #f87171;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="dashboard">
+            <h1>DevOps Status Dashboard</h1>
+            <p class="subtitle">Node.js | Docker | GitHub Actions | AWS</p>
+
+            <div class="card">
+                <div class="label">Application Status</div>
+                <div class="value" id="status">Checking...</div>
+            </div>
+
+            <div class="card">
+                <div class="label">Server Uptime</div>
+                <div class="value" id="uptime">--</div>
+            </div>
+
+            <div class="card">
+                <div class="label">Last Update</div>
+                <div class="value" id="timestamp">--</div>
+            </div>
+        </main>
+
+        <script>
+            async function updateStatus(){
+                const statusElement = document.getElementById("status");
+
+                try {
+                    const response = await fetch("/api/status");
+
+                    if (!response.ok) {
+                        throw new Error("Server response error");
+                    }
+
+                    const data = await response.json();
+
+                    statusElement.textContent = data.status.toUpperCase();
+                    statusElement.className = "value online";
+
+                    document.getElementById("uptime").textContent = data.uptime + " seconds";
+
+                    document.getElementById("timestamp").textContent = new Date(data.timestamp).toLocaleString();
+                } catch (error) {
+                    statusElement.textContent = "OFFLINE";
+                    statusElement.className = "value offline";
+                }
+            }
+
+            updateStatus();
+            setInterval(updateStatus, 5000);
+        </script>
+    </body>
+</html>

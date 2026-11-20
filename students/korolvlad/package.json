@@ -1,0 +1,11 @@
+{
+  "name": "devops-status-dashboard",
+  "version": "1.0.0",
+  "description": "Node.js dashboard for DevOps CI/CD project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --check server.js"
+  },
+  "license": "MIT"
+}
