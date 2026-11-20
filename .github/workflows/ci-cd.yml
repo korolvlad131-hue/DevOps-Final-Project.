@@ -1,0 +1,47 @@
+name: DevOps CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: students/korolvlad
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test application
+        run: npm test
+
+      - name: Build Docker image
+        run: docker build -t devops-status-dashboard:latest .
+
+      - name: Run and verify Docker container
+        run: |
+          docker run -d --name dashboard-test -p 3000:3000 devops-status-dashboard:latest
+
+          for i in {1..15}; do
+            if curl --fail --silent --show-error http://localhost:3000/api/status; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs dashboard-test
+          exit 1
+
+      - name: Stop test container
+        if: always()
+        run: docker rm -f dashboard-test || true
